@@ -1,0 +1,90 @@
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE Files
+.vscode/
+.idea/
+*.sublime-*
+.project
+.classpath
+.settings/
+
+# Project Specific - Uploaded Files (Keep folder but not contents)
+/uploads/*
+!/uploads/.gitkeep
+
+# Database - DON'T COMMIT DATABASE DUMPS
+*.sql
+*.sql.gz
+*.sql.zip
+*.backup
+*.dump
+
+# Configuration - DON'T COMMIT REAL CONFIG WITH CREDENTIALS
+/includes/config.php
+!/includes/config.example.php
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+error_log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+~$*
+
+# Composer (if used)
+vendor/
+composer.lock
+composer.phar
+
+# Node (if used)
+node_modules/
+package-lock.json
+yarn.lock
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+
+# Coverage reports
+coverage/
+.clover.xml
+phpunit.xml
+
+# Railway specific
+.railway/
+
+# Local development
+*.local
+*.dev
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+
+# Backups
+*.bak
+backup-*
+
+# Keep uploads directory structure
+uploads/
+!uploads/.gitkeep

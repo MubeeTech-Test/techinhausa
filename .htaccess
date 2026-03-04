@@ -1,9 +1,185 @@
-# .htaccess
+# .htaccess - TechInHausa Production Configuration
+
+# Enable Rewrite Engine
 RewriteEngine On
 
-# Handle video URLs - redirect /video/slug to watch.php?slug=slug
-RewriteRule ^video/([a-zA-Z0-9_-]+)$ watch.php?slug=$1 [L,QSA]
+# Force HTTPS (uncomment when SSL is installed)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 
-# Ensure videos.php works normally
+# Remove trailing slashes (except for directories)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} /(.*)/$
+RewriteRule ^ /%1 [R=301,L]
+
+# ============================================
+# SINGLE PAGE ROUTING (Your specified URLs)
+# ============================================
+
+# Video pages - /watch.php?slug=example
+RewriteRule ^watch/([a-zA-Z0-9_-]+)$ watch.php?slug=$1 [L,QSA]
+
+# Blog pages - /post.php?slug=example
+RewriteRule ^post/([a-zA-Z0-9_-]+)$ post.php?slug=$1 [L,QSA]
+
+# News pages - /article.php?slug=example
+RewriteRule ^article/([a-zA-Z0-9_-]+)$ article.php?slug=$1 [L,QSA]
+
+# Research pages - /paper.php?slug=example
+RewriteRule ^paper/([a-zA-Z0-9_-]+)$ paper.php?slug=$1 [L,QSA]
+
+# Creator pages - /item.php?slug=example
+RewriteRule ^item/([a-zA-Z0-9_-]+)$ item.php?slug=$1 [L,QSA]
+
+# ============================================
+# LISTING PAGES (Direct access)
+# ============================================
+
+# Main listing pages
+RewriteRule ^videos$ videos.php [L,QSA]
+RewriteRule ^blog$ blog.php [L,QSA]
+RewriteRule ^news$ news.php [L,QSA]
+RewriteRule ^research$ research.php [L,QSA]
+RewriteRule ^creator$ creator.php [L,QSA]
+
+# Pagination support
+RewriteRule ^videos/page/([0-9]+)$ videos.php?page=$1 [L,QSA]
+RewriteRule ^blog/page/([0-9]+)$ blog.php?page=$1 [L,QSA]
+RewriteRule ^news/page/([0-9]+)$ news.php?page=$1 [L,QSA]
+RewriteRule ^research/page/([0-9]+)$ research.php?page=$1 [L,QSA]
+RewriteRule ^creator/page/([0-9]+)$ creator.php?page=$1 [L,QSA]
+
+# ============================================
+# FILTER ROUTING (Categories, Tags, Search)
+# ============================================
+
+# Category filters
+RewriteRule ^videos/category/([a-zA-Z0-9_-]+)$ videos.php?category=$1 [L,QSA]
+RewriteRule ^blog/category/([a-zA-Z0-9_-]+)$ blog.php?category=$1 [L,QSA]
+RewriteRule ^news/category/([a-zA-Z0-9_-]+)$ news.php?category=$1 [L,QSA]
+RewriteRule ^research/category/([a-zA-Z0-9_-]+)$ research.php?category=$1 [L,QSA]
+RewriteRule ^creator/category/([a-zA-Z0-9_-]+)$ creator.php?category=$1 [L,QSA]
+
+# Tag filters
+RewriteRule ^videos/tag/([a-zA-Z0-9_-]+)$ videos.php?tag=$1 [L,QSA]
+RewriteRule ^blog/tag/([a-zA-Z0-9_-]+)$ blog.php?tag=$1 [L,QSA]
+RewriteRule ^news/tag/([a-zA-Z0-9_-]+)$ news.php?tag=$1 [L,QSA]
+RewriteRule ^research/tag/([a-zA-Z0-9_-]+)$ research.php?tag=$1 [L,QSA]
+
+# Type filters (for creator)
+RewriteRule ^creator/type/([a-zA-Z0-9_-]+)$ creator.php?type=$1 [L,QSA]
+
+# ============================================
+# STATIC ASSETS CACHING
+# ============================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+    <FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico|webp|svg|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+</IfModule>
+
+# ============================================
+# SECURITY HEADERS
+# ============================================
+
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    
+    # Enable XSS protection
+    Header set X-XSS-Protection "1; mode=block"
+    
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Content Security Policy (adjust as needed)
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://img.youtube.com; frame-src https://www.youtube.com"
+</IfModule>
+
+# ============================================
+# ERROR PAGES
+# ============================================
+
+ErrorDocument 404 /404.php
+ErrorDocument 403 /403.php
+ErrorDocument 500 /500.php
+
+# ============================================
+# PROTECT SENSITIVE FILES AND FOLDERS
+# ============================================
+
+# Block access to .htaccess itself
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Block access to sensitive files
+<FilesMatch "\.(ini|log|sql|json|lock|md|gitignore|env|example)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to includes directory
+RewriteRule ^includes/ - [F,L]
+
+# Block access to partials directory
+RewriteRule ^partials/ - [F,L]
+
+# Block access to uploads PHP execution
+<Directory "uploads">
+    <FilesMatch "\.php$">
+        Order Deny,Allow
+        Deny from all
+    </FilesMatch>
+</Directory>
+
+# ============================================
+# COMPRESSION
+# ============================================
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/xml application/xhtml+xml application/rss+xml
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ============================================
+# DIRECTORY BROWSING
+# ============================================
+
+Options -Indexes
+
+# ============================================
+# DEFAULT CHARSET
+# ============================================
+
+AddDefaultCharset UTF-8
+
+# ============================================
+# EXISTING FILES/DIRECTORIES CHECK
+# ============================================
+
+# If the request is not for a valid file or directory,
+# and doesn't match any rewrite rules above, 
+# pass it through to index.php (for clean URLs)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]
