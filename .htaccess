@@ -1,0 +1,9 @@
+# .htaccess
+RewriteEngine On
+
+# Handle video URLs - redirect /video/slug to watch.php?slug=slug
+RewriteRule ^video/([a-zA-Z0-9_-]+)$ watch.php?slug=$1 [L,QSA]
+
+# Ensure videos.php works normally
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
